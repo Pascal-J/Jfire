@@ -92,20 +92,15 @@ num_elements =: 1 {.@{::[: af_get_elements (,0);]
 
 J =: (dims $ 1 {:: [: (af_get_data_ptrF)`('c32 not supported' assert 0:)`(af_get_data_ptrD)`(af_get_data_ptrJ)`(af_get_data_ptrB)`(af_get_data_ptr)`(af_get_data_ptrS)`(af_get_data_ptrB)`(af_get_data_ptr)`(af_get_data_ptr)@.(1 get_type@{:: ]) (num_elements # AFpadval@get_type) ; ])"0
 'not safe enough' NB. assignR =: assign [ R@(4 :'x~ assert. 100000000 < | x~' :: 0:) NB. Release ptr in name(str) x , then assign y to x
+NB. not complete but good idea.  managed mem much more useful though.
 Ra =: 2 : 0 NB. applies verb u, and releases args indicated by list n: 0 no release. negative: index of 1based-x param positive: 1based-index of y param. Ex: xptr add Ra (_1 1) yptr releases both x and y after getting result of add
 ([ 'R'locs@[ v"_ <:@ #~ 0 > v"_) ] (] 'R'locs@[ v"_ <:@ #~ 0 < v"_) ]u 
 )
-Js =: dims $ 1 {:: [: af_get_data_ptrS (num_elements # AFpadval@get_type) ; ]
-Jf =: dims $ 1 {:: [: af_get_data_ptrF (num_elements # AFpadval@get_type) ; ]
-Jd =: dims $ 1 {:: [: af_get_data_ptrD (num_elements # AFpadval@get_type) ; ]
-JsR=: (R ] Js)"0
-JfR=: (R ] Jf)"0
-JdR=: (R ] Jf)"0
 JR =: (R ] J)"0  NB. release after getting toJ
-add =: ([: chkerR@af_add (,0) ; [ ; ] ; 0:)"0 0
+add =: ([: chkerR@af_add (,0) ; [ ; ] ; 0:)"0 0  NB. overwritten by next batch.
 NB.add =: ([: chkerR@af_bitxor (,0) ; [ ; ] ; 1:)"0 0
 3 : '(y) =: (''([: chkerR@af_'', y, '' (,0) ; [ ; ] ; 1:)"0 0'' ) eval label_. y' each ;: 'add bitxor bitand bitor sub mul div mod'
-add_a =: ([: chkerR@af_add (0 {:: ]) ; 1&{:: ; 2&{:: ; 0:)"1 NB. monad triplet version. result, x, y pointers. 0 for result creates new array. FAILS: Hopefully can overwrite result into existing array pointer.
+add_a =: ([: chkerR@af_add (0 {:: ]) ; 1&{:: ; 2&{:: ; 0:)"1 NB. monad triplet version. result, x, y pointers. 0 for result creates new array. FAILS (but keep trying): Hopefully can overwrite result into existing array pointer.
 matmul =: 1 : 'a=. coname '''' label_. ([: chkerR__a@af_matmul__a f. (,0) ; [ ; (;/m) ;~ ])' NB. m is transpose options 0 0 is no transpose.  see enumbs below
 
 

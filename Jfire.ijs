@@ -56,6 +56,7 @@ libAFpathset_af_ =: 0 {:: a
 LIBFILTER_af_ =: 1 ".@{:: a
 LIBDEFAULT_af_ =: 2 ".@{:: a
 load  MYDIR_afloader_ ,'arrayfire.ijs'
+load  MYDIR_afloader_ ,'arrayfire.ijs' NB. double to make sure :P
 )
 AFsetconfig_base_ =: setconfig =: 3 : 0
 '3 boxed parameters needed' assert 3 = # y

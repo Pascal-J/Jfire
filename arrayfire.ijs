@@ -89,15 +89,7 @@ get_type =: 1 {.@{:: [: af_get_type (,0) ; ]
 dims =:  get_numdims{. get_dims
 count =: {.@get_dims
 num_elements =: 1 {.@{::[: af_get_elements (,0);]
-J =: get_data_ptr =: 3 : 0"0 NB. y is af_array pointer
- NB.pD l=. (AFbytesize@get_type * num_elements) y
- NB.pD a =. mema l
- a =. (num_elements y) # AFpadval get_type y
- b =. 1 {::  af_get_data_ptr  a; y
- NB. memr (15!:14 <'b'),0,l,4
- NB. memr b,0,l,4
- (dims y) $ b
-)
+
 J =: (dims $ 1 {:: [: (af_get_data_ptrF)`('c32 not supported' assert 0:)`(af_get_data_ptrD)`(af_get_data_ptrJ)`(af_get_data_ptrB)`(af_get_data_ptr)`(af_get_data_ptrS)`(af_get_data_ptrB)`(af_get_data_ptr)`(af_get_data_ptr)@.(1 get_type@{:: ]) (num_elements # AFpadval@get_type) ; ])"0
 'not safe enough' NB. assignR =: assign [ R@(4 :'x~ assert. 100000000 < | x~' :: 0:) NB. Release ptr in name(str) x , then assign y to x
 Ra =: 2 : 0 NB. applies verb u, and releases args indicated by list n: 0 no release. negative: index of 1based-x param positive: 1based-index of y param. Ex: xptr add Ra (_1 1) yptr releases both x and y after getting result of add

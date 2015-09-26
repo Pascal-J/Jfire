@@ -19,15 +19,16 @@ JsR As i. 10 10
 1 3 10 30 timespacex 'JR a =. A i. 10 10 100'
 )
 floats =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
-R a [ pD 0j16": Jf a =. Af_afopencl_ ". ": %: 3 3 $ 1 2 3 5 6 7 8 10 11  NB. truncated f32
-R a_base_ [pD 0j16": Jf a_base_ =: Af_afopencl_ %: 3 3 $ 1 2 3 5 6 7 8 10 11 NB. not truncated f32.  
-0j16": JdR Ad %: 3 3 $ 1 2 3 5 6 7 8 10 11 NB. crashes if device has no double support NB. f64 not truncated
+R b_base_ [ pD 0j16": J b_base_ =. Af ". ": %: 3 3 $ 1 2 3 5 6 7 8 10 11  NB. truncated f32
+R a_base_ [pD 0j16": J a_base_ =: Af %: 3 3 $ 1 2 3 5 6 7 8 10 11 NB. not truncated f32.  
+0j16": JR Ad ". ": %: 3 3 $ 1 2 3 5 6 7 8 10 11  NB. truncated f64
+0j16": JR Ad %: 3 3 $ 1 2 3 5 6 7 8 10 11 NB. crashes if device has no double support NB. f64 not truncated
 0j16": %: 3 3 $ 1 2 3 5 6 7 8 10 11 NB. What J thinks it should get back
 )
 
-simpleexpressions =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
- 0j16": Jf a_base_ =:  Af %: 3 3 $ 1 2 3 5 6 7 8 10 11  NB. crashes if device has no double support
- R a_base
+maybefails =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
+ 0j16": JR   Ad %: 3 3 $ 1 2 3 5 6 7 8 10 11  NB. crashes if device has no double support
+
 )
 
 adds =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen

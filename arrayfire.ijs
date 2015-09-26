@@ -60,7 +60,7 @@ D	i *x *d x *x i :af_err 	af_create_array (af_array *arr, const void *const data
 S	i *x *i x *x i :af_err 	af_create_array (af_array *arr, const void *const data, const unsigned ndims, const dim_t *const dims, const af_dtype type)
 F	i *f x:af_err 		af_get_data_ptr (void *data, const af_array arr)
 D	i *d x:af_err 		af_get_data_ptr (void *data, const af_array arr)
-S	i *x x:af_err 		af_get_data_ptr (void *data, const af_array arr)
+S	i *i x:af_err 		af_get_data_ptr (void *data, const af_array arr)
 )
 get_device_count =: (1 {.@{:: af_get_device_count@<@,@0:) :: 0:
 get_device =: 1 {.@{:: af_get_device@<@,@0:
@@ -103,8 +103,10 @@ J =: (dims $ 1 {:: [: (af_get_data_ptrF)`('c32 not supported' assert 0:)`(af_get
 Ra =: 2 : 0 NB. applies verb u, and releases args indicated by list n: 0 no release. negative: index of 1based-x param positive: 1based-index of y param. Ex: xptr add Ra (_1 1) yptr releases both x and y after getting result of add
 ([ 'R'locs@[ v"_ <:@ #~ 0 > v"_) ] (] 'R'locs@[ v"_ <:@ #~ 0 < v"_) ]u 
 )
+Js =: dims $ 1 {:: [: af_get_data_ptrS (num_elements # AFpadval@get_type) ; ]
 Jf =: dims $ 1 {:: [: af_get_data_ptrF (num_elements # AFpadval@get_type) ; ]
 Jd =: dims $ 1 {:: [: af_get_data_ptrD (num_elements # AFpadval@get_type) ; ]
+JsR=: (R ] Js)"0
 JfR=: (R ] Jf)"0
 JdR=: (R ] Jf)"0
 JR =: (R ] J)"0  NB. release after getting toJ
@@ -226,7 +228,11 @@ NB. NUMDEVICES =: get_device_count 0
 NB. shaddow functions for J implementation.
 coclass 'afJ'
 coinsert 'afhelper'
-
+add =: +
+sub =: -
+mod =: |~
+A =: Ad =: Af =: ]
+NB. etc.
 coclass 'afdevice' ( [ [ Note@]) 'Devices with mem manager'
  Pattern attempt to access devices independently of dll/locales that cover their functions.
  create param is locale (afcpu;afcude;afopencl or compatible) and optionally a device to lock/switch to TOHANDLE

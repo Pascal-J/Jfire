@@ -4,20 +4,29 @@ require MYDIR , 'arrayfire.ijs'
 lrX_z_ =: 1 : ('''('', u lrA , '') '' , lr y';':';'''('', (lr x) , '') ('' , u lrA , '') '' , lr y') 
 tsfX_z_ =: 1 : 'u [ [: 1!:2&2@:timespacex u lrX'
 
+Note 'library locales vs device objects'
+The library locales are afcpu afcuda and afopencl.  They do not have managed (by J) memory.
+device objects are shown in the next note, and do have managed memory.  The first few tests can use either library locales or device objects.
+
+TO CALL EACH TEST,
+pass a list of locales (boxed if more than 1, or if a device object)
+the code runs once for each locale passed as argument.
+)
 test1 =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
 infoF 1
-1 3 10 30 timespacex 'JR a =. chkerR u32 Atyped i. 10 10 100'
-1 3 10 30 timespacex 'JR a =. chkerR A i. 10 10 100'
+JsR As i. 10 10 
+1 3 10 30 timespacex 'JsR a =. As i. 10 10 100'
+1 3 10 30 timespacex 'JR a =. A i. 10 10 100'
 )
 floats =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
-R a [ pD 0j16": Jf a =. chkerR f32 Atypedf_afopencl_ ". ": %: 3 3 $ 1 2 3 5 6 7 8 10 11  NB. truncated f32
-R a_base_ [pD 0j16": Jf a_base_ =: chkerR f32 Atypedf_afopencl_ %: 3 3 $ 1 2 3 5 6 7 8 10 11 NB. not truncated f32
-0j16": JfR chkerR Af_afopencl_ %: 3 3 $ 1 2 3 5 6 7 8 10 11 NB. crashes if device has no double support NB. f64 not truncated
+R a [ pD 0j16": Jf a =. Af_afopencl_ ". ": %: 3 3 $ 1 2 3 5 6 7 8 10 11  NB. truncated f32
+R a_base_ [pD 0j16": Jf a_base_ =: Af_afopencl_ %: 3 3 $ 1 2 3 5 6 7 8 10 11 NB. not truncated f32.  
+0j16": JdR Ad %: 3 3 $ 1 2 3 5 6 7 8 10 11 NB. crashes if device has no double support NB. f64 not truncated
 0j16": %: 3 3 $ 1 2 3 5 6 7 8 10 11 NB. What J thinks it should get back
 )
 
 simpleexpressions =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
- 0j16": Jf a_base_ =: chkerR Af_afopencl_ %: 3 3 $ 1 2 3 5 6 7 8 10 11  NB. crashes if device has no double support
+ 0j16": Jf a_base_ =:  Af %: 3 3 $ 1 2 3 5 6 7 8 10 11  NB. crashes if device has no double support
  R a_base
 )
 
@@ -25,7 +34,7 @@ adds =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  
  R a,b [ pD@JR c_base_ =: add/ tsfX 'a b' =. A"1 i.2 5
  R a,b [ pD(JR  ; get_type)  add/ 'a b' =. pD A every  6 ; i. 5  NB. if batchmode 0 on add
 )
-
+NB. TESTS BELOW THIS MUST BE CALLED WITH A DEVICE OBJECT(s).
 Note 'sample to makde device objects (copy and F8)'
  C =. P =. ('afcpu';0) conew 'afdevice'
  C =. G =. ('afopencl';1) conew 'afdevice'
@@ -50,7 +59,7 @@ timespacex'+/ . *~ 100 100 $ i. 5'
 killmanaged i.0
 )
 fails =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
- R a,b [  add/ 'a b' =. A every 6 ; i. 5  NB. if batchmode 0 on add
+ R a,b [  add/ 'a b' =. A every 6 ; i. 5  NB. if batchmode 0 on add NB. fixed.
 )
 
 convolveRNG =: (4294967295 (17 b.) {:@$ ((] ,@:({."0 1)~ -@-:@[ , -:@[) ,: ] {~ -:@[ + i.@[) +//. @: (+//. @:((2147483647 | */~)"1)))
@@ -76,7 +85,4 @@ polymult =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2
  a  (([: AM"1 $ #"1 ,.)@[ mulM"0 0 tsfX AM@]) b  NB. no access to result or oblique sum
  a +//.@:(*/) tsfX b
  killmanaged 0
-)
-inltest 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
-test1 =. 4
 )

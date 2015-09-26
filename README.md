@@ -24,3 +24,12 @@ see tests for usage.
 Error management is currently set to just crash at point of failure and didsplay what error information is returned from arrayfire (standard error is not used much by them, but the error codes are in arrayfire.ijs file)
 
 A subset of functions are implemented so far, but it should be straight forward to add the others as they have common signatures.
+
+Main commands in every locale and device:
+
+A creates an array. (scalars are arrays too) Af, Ad, As create "typed" arrays float double int32.  I haven't implemented complex or byte arrays yet.  
+A is simple monad with any numeric noun (handle chars when I do byte, but there are few functions suited to chars in AF library)  
+R releases an array.  
+M suffix (AM AfM...) puts created array in managed memory.  addM  mulM adds result to managed memory.  
+J is universal from arrayfire to J command (every type)  
+JR releases pointer after getting its contents.  

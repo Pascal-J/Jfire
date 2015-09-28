@@ -33,3 +33,7 @@ R releases an array.
 M suffix (AM AfM...) puts created array in managed memory.  addM  mulM adds result to managed memory.  
 J is universal from arrayfire to J command (every type)  
 JR releases pointer after getting its contents.  
+
+see wiki for performing the same BLAS tests that come with arrayfire in J
+
+https://github.com/Pascal-J/Jfire/wiki

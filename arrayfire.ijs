@@ -50,7 +50,18 @@ i *x x x i:af_err 		af_bitxor (af_array *out, const af_array lhs, const af_array
 i *x x x i:af_err 		af_bitand (af_array *out, const af_array lhs, const af_array rhs, const bool batch)
 i *x x x i:af_err 		af_bitor (af_array *out, const af_array lhs, const af_array rhs, const bool batch)
 i *x x x i:af_err 		af_mod (af_array *out, const af_array lhs, const af_array rhs, const bool batch)
+i *x x x i:af_err 		af_exp (af_array *out, const af_array lhs, const af_array rhs, const bool batch)
 i *x x x i i:af_err 	af_matmul (af_array *out, const af_array lhs, const af_array rhs, const af_mat_prop optLhs, const af_mat_prop optRhs)
+i *x x i:af_err 		af_set_unique (af_array *out, const af_array in, const bool is_sorted)
+i *x x x i:af_err 		af_set_intersect (af_array *out, const af_array first, const af_array second, const bool is_unique)
+i *x x x i:af_err 		af_set_union (af_array *out, const af_array first, const af_array second, const bool is_unique)
+i *x x i :af_err 		af_sum (af_array *out, const af_array in, const int dim)
+i *x x i :af_err 		af_product (af_array *out, const af_array in, const int dim)
+i *x x i :af_err 		af_min (af_array *out, const af_array in, const int dim)
+i *x x i :af_err 		af_max (af_array *out, const af_array in, const int dim)
+i *x x i :af_err 		af_alltrue (af_array *out, const af_array in, const int dim)
+i *x x i :af_err 		af_anytrue (af_array *out, const af_array in, const int dim)
+i *x x i :af_err 		af_count (af_array *out, const af_array in, const int dim)
 )
 cdSp =: 3 : '''c n s'' =. y label_.(n,s) =: (n , '' '' , c) libAF label_. y'"1
 SPECIALVERs =: dltb leaf ((':' {.@:cut 1 {:: ]) , {.@:('('&cut)@(2 {:: ]) ,{.)"1 ] 3 {."1 (9{a.) cut every cutLF 0 : 0
@@ -99,10 +110,15 @@ Ra =: 2 : 0 NB. applies verb u, and releases args indicated by list n: 0 no rele
 JR =: (R ] J)"0  NB. release after getting toJ
 add =: ([: chkerR@af_add (,0) ; [ ; ] ; 0:)"0 0  NB. overwritten by next batch.
 NB.add =: ([: chkerR@af_bitxor (,0) ; [ ; ] ; 1:)"0 0
-3 : '(y) =: (''([: chkerR@af_'', y, '' (,0) ; [ ; ] ; 1:)"0 0'' ) eval label_. y' each ;: 'add bitxor bitand bitor sub mul div mod'
+dyadlist =: 'add bitxor bitand bitor sub mul div mod exp'
+3 : '(y) =: (''([: chkerR@af_'', y, '' (,0) ; [ ; ] ; 1:)"0 0'' ) eval label_. y' each ;: dyadlist 
+reducelist =: 'sum product count alltrue anytrue max min'
+3 : '(y) =: (''(_1&$: : ([: chkerR@af_'', y, '' (,0) ; [ ;~ ]))"0 _ 0'' ) eval label_. y' each ;: reducelist 
 add_a =: ([: chkerR@af_add (0 {:: ]) ; 1&{:: ; 2&{:: ; 0:)"1 NB. monad triplet version. result, x, y pointers. 0 for result creates new array. FAILS (but keep trying): Hopefully can overwrite result into existing array pointer.
 matmul =: 1 : 'a=. coname '''' label_. ([: chkerR__a@af_matmul__a f. (,0) ; [ ; (;/m) ;~ ])' NB. m is transpose options 0 0 is no transpose.  see enumbs below
-
+set =: 0&$: : ([: chkerR@af_set_unique (,0) ; [ ;~ ])
+set_intersect =: 1 : 'a=. coname '''' label_. ([: chkerR__a@af_set_intersect__a f. (,0) ; [ ; (m) ;~ ])'
+set_union =: 1 : 'a=. coname '''' label_. ([: chkerR__a@af_set_union__a f. (,0) ; [ ; (m) ;~ ])'
 
 cocurrent 'afenums'
 enumO =: (] assign each  i.@#)
@@ -172,7 +188,6 @@ enum  dltb each"1 '=' cut every ',' {.@cut"1 dltb every cutLF  0 : 0
 )
 
 (cutLF 0 : 0) inl each"2 0  <"0@boxopen LIBFILTER_af_ # ;: 'afcpu afcuda afopencl'
-NB.old =. cocurrent2 a =. coname ''
 a =. > coname ''
 coinsert 'af'
 DRIVER =: (('''', toupper  a ,'''') , '"_') eval
@@ -180,8 +195,9 @@ libAFmainlib =: libAFpath , (IFIOS + (;: 'Win Linux Android Darwin') i. <UNAME_z
 libAFmainlib =:  ('"', ],'"'"_)^:(IFWIN"_) libAFmainlib 
 cdparse f. AFLIB
 cdSp f. SPECIALVERs
+intersect =: 0 set_intersect
+union =: 0 set_union
 NUMDEVICES =: get_device_count 0
-NB.cocurrent old
 )
 NB. coclass 'afcpu'
 NB.
@@ -216,10 +232,11 @@ NB. shaddow functions for J implementation.
 coclass 'afJ'
 coinsert 'afhelper'
 add =: +
-sub =: -
+sub =: 0&- : -
 mod =: |~
-A =: Ad =: Af =: ]
+A =: Ad =: Af =: J =:]
 NB. etc.
+
 coclass 'afdevice' ( [ [ Note@]) 'Devices with mem manager'
  Pattern attempt to access devices independently of dll/locales that cover their functions.
  create param is locale (afcpu;afcude;afopencl or compatible) and optionally a device to lock/switch to TOHANDLE
@@ -234,12 +251,12 @@ create =: 3 : 0
  setme a:
 )
 info =: 3 : 'infoF MyDid'
-(<' appendmanaged@:') 4 : '(y,''M'') =: ( x, (,y)  ) eval label_. y' each ;: 'A Ad Af As add bitxor bitand bitor sub mul div mod'
+(<' appendmanaged@:') 4 : '(y,''M'') =: ( x, (,y)  ) eval label_. y' each ;: 'A Ad Af As set intersect union' , dyadlist_af_ , ' ' , , reducelist_af_
 NB. (< 'appendmanaged') 4 : 0 each ;: 'matmul'
 NB.  (y,'M') =: (' u ' , (quote y) , ' locs ' , (quote x) , ' locs@) ' ) (1 : )  label_. y
 NB. )
 'adverbs are hard' NB.matmulM =: 1 : 'a=. coname '''' label_. u matmul__a (appendmanaged__a@)'
 appendmanaged =: 3 : 'y[ MANAGED =: MANAGED , , y'
 clearmanaged =: 3 : 'MANAGED =: y [ R"0 MANAGED'
-killmanaged =: clearmanaged @: ((i.0)"_)
+killmanaged =: ] [ clearmanaged @: ((i.0)"_)
 destroy =: killmanaged NB.device_gc@:killmanaged  NB. gc misdoc'd

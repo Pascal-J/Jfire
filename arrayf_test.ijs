@@ -17,6 +17,7 @@ infoF 1
 JR As i. 10 10 
 1 3 10 30 timespacex 'JR a =. As i. 10 10 100'
 1 3 10 30 timespacex 'JR a =. A i. 10 100'
+1 3 10 30 timespacex 'JR a =. A i. 10'
 )
 floats =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
 R b_base_ [ pD 0j16": J b_base_ =. Af ". ": %: 3 3 $ 1 2 3 5 6 7 8 10 11  NB. truncated f32
@@ -39,8 +40,15 @@ adds =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  
 NB. TESTS BELOW THIS MUST BE CALLED WITH A DEVICE OBJECT(s).
 Note 'sample to makde device objects (copy and F8)'
  C =. P =. ('afcpu';0) conew 'afdevice'
+ O =. ('afopencl';1) conew 'afdevice'
  C =. G =. ('afopencl';0) conew 'afdevice'
- addsManaged P,G
+ addsManaged P,O
+)
+Jspecials =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
+ C =. coname ''
+ J__C expM__C~ AM__C 0
+ J__C divM__C~ AM__C 0
+ 
 )
 addsManaged =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
  C =. coname ''  NB. not necessary as code will run in each y locale
@@ -50,6 +58,37 @@ addsManaged =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)eac
  JR__C (AM__C  1 2 ) add__C AM__C 2 3 $ 239420398023948 1231 1234 NB. vector + table reasonable compatibility shape
  JR__C (AM__C 2 2 $ 1 2 3 4) add__C AM__C 2 2 3 $ 239420398023948 1231 1234  NB.  reasonable compatibility shape
 )
+NB. only afcpu is not buggy
+reduces =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
+setme__C C =. coname ''
+J__C 1 sumM__C AM__C i.5 10
+J__C 0 sumM__C AM__C 1000000000 + i.5 10
+J__C 1 sumM__C AfM__C i.5 10
+J__C 0 sumM__C AfM__C i.5 10
+J__C 1 sumM__C AdM__C i.5 10
+J__C 0 sumM__C AdM__C i.5 10
+   +/ i.10 5 
+   +/"1 i.10 5 
+ J__C 1 sumM__C tsfX AsM__C i.4 5000 NB. fails on afcpu too.
+(+/ b =.?. 800000 4 $ 100000) -: J__C 1 sumM__C tsfX a =.AM__C ?. 4 800000 $ 100000
+  timespacex 'J__C 1 sumM__C tsfX  a' 
+$ b
+   timespacex '+/ tsfX b'  
+killmanaged__C 10 timespacex 'J__C 1 sumM__C a'
+  10 timespacex '+/ b ' 
+
+)
+sets =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
+setme__C C =. coname ''
+J__C a =. setM__C AdM__C 2 3 3 4 1 5 3 2  NB. must be floats/double
+JR__C 1 set_intersect__C/ a , setM__C AfM__C 3 5 7 7 1 2  
+JR__C a intersect__C  setM__C AfM__C 3 5 7 7 1 2 0 2 
+JR__C 1 set_union__C/ a , setM__C AfM__C 3 5 7 7 1 2 0 2 
+JR__C a union__C  setM__C AfM__C 3 5 7 7 1 2  
+)
+
+
+
 multimatmuls =: 4 : 'for_i. x do. matmuls y [ matmulp_base_ =: 2 # i end.'
 multimatmulsF =: 4 : 'for_i. x do. matmulsFonly y [ matmulp_base_ =: 2 # i end.'
 matmulp_base_ =. 100 100
@@ -59,7 +98,7 @@ J 0 0 matmul~tsfX AdM 5 5 $ i. 5
 timespacex'JR 0 0 matmul~tsfX AdM matmulp_base_ $ i. 5' NB. double
 timespacex' JR@:((0 0 matmul~)tsfX) AfM matmulp_base_ $ i. 5' NB. float
 timespacex'+/ . *~ matmulp_base_ $ i. 5'
-((+/ . *)~ -: [: JR@:(0 0 matmul~)tsfX AfM) matmulp_base_ $ i. 5  NB. TEST MATCHED. timing includes getting back to J
+((+/ . *)~ -: [: JR@:(0 0 matmul~)tsfX AdM) matmulp_base_ $ i. 5  NB. TEST MATCHED. timing includes getting back to J
 R 0 0 matmul~tsfX AdM matmulp_base_ $ i. 5  NB. don't access result should return fast
 killmanaged i.0
 )
@@ -80,9 +119,10 @@ fails =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0 
 convolveRNG =: (4294967295 (17 b.) {:@$ ((] ,@:({."0 1)~ -@-:@[ , -:@[) ,: ] {~ -:@[ + i.@[) +//. @: (+//. @:((2147483647 | */~)"1)))
 NB. convolveRNG ^:(5) >: i.2 6
 convolveRNGtest =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
- m31 =: A 2147483647
+ infoF m31 =: A 2147483647
  J mulM~"0 AM"1 >: i.2 6 NB. make 2 arrays and square each
-  +//.@:J m31 modM"0 0~ mulM~"0 AM"1 100000 i.2 6  NB. mod is J-backwards
+  J m31 modM"0 0~ mulM~"0 (AM"1) 100000 + i.2 6  NB. mod is J-backwards
+  2147483647 | (*~"1) 100000 + i.2 6
   J (AM 2) mulM"0 0 AM"1 i.2 6
   ([: AM"1 $ #"1 ,.)"1 >: i.2 6  NB. can call J__device on output pointers to combine arrays.
   +//.  +//."_1 J  m31 modM~"0 (AM"0 mulM"0 0 AM)"1 >: i.2 6 

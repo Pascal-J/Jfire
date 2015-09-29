@@ -45,9 +45,11 @@ Note 'sample to makde device objects (copy and F8)'
  addsManaged P,O
 )
 Jspecials =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
- C =. coname ''
+info__C setme__C C =. coname ''
  J__C expM__C~ AM__C 0
  J__C divM__C~ AM__C 0
+ J__C divM__C~ AfM__C 0
+ J__C divM__C~ AM__C 0 1 2
  
 )
 addsManaged =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen
@@ -77,7 +79,8 @@ J__C 0 sumM__C AdM__C i.5 10
 killmanaged__C  timespacex 'J__C 0 sumM__C a' [ a =. AM__C"1 ?. 4 800000 $ 100000
 killmanaged__C  timespacex 'J__C 0 sumM__C a' [ a =. AM__C"1 ?. 16 200000 $ 100000
    timespacex '+/ b ' 
-  timespacex '+/ each <"1&.|: b ' 
+  timespacex '+/ each <"1 b ' [ b=. ?.4 800000 $ 100000
+  timespacex '+/ each  b ' [ b=. <"1 ?. 4 800000 $ 100000
 
 )
 sets =: 'no test crashed' [ ( cutLF 0 : 0) (pD@inl [ pD@:('  ', ":)@[)each"2 0  <"0@boxopen

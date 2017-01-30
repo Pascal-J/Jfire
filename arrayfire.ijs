@@ -249,7 +249,7 @@ create =: 3 : 0
  coinsert  {. boxopen y
  MyDid =: 1 {:: y
  if. 2=#boxopen y do. setme =: ('] [ set_device@', ':',~ ": MyDid) eval end.  NB. setme only necessary call if multidevice
- (<' appendmanaged@:') 4 : '(y,''M'') =: (pD x,  ''('',y ,'')'' ) eval label_. y' each ;: 'A Ad Af As Ab Aj set intersect union ' , dyadlist_af_ , ' ' , , reducelist_af_ 
+ (<' appendmanaged@:') 4 : '(y,''M'') =: ( x,  ,y  ) eval label_. y' each ;: 'A Ad Af As Ab Aj set intersect union ' , dyadlist_af_ , ' ' , , reducelist_af_ 
  setme a:
 )
 info =: 3 : 'infoF MyDid'

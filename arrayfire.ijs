@@ -244,19 +244,16 @@ coclass 'afdevice' ( [ [ Note@]) 'Devices with mem manager'
  adds managed memory interface.  Multiple objects share one resource, but application is to batch clear memory pointers.
 )
 MANAGED =: i.0
+appendmanaged =: 3 : 'y[ MANAGED =: MANAGED , , y'
 create =: 3 : 0
  coinsert  {. boxopen y
  MyDid =: 1 {:: y
  if. 2=#boxopen y do. setme =: ('] [ set_device@', ':',~ ": MyDid) eval end.  NB. setme only necessary call if multidevice
+ (<' appendmanaged@:') 4 : '(y,''M'') =: (pD x,  ''('',y ,'')'' ) eval label_. y' each ;: 'A Ad Af As Ab Aj set intersect union ' , dyadlist_af_ , ' ' , , reducelist_af_ 
  setme a:
 )
 info =: 3 : 'infoF MyDid'
-(<' appendmanaged@:') 4 : '(y,''M'') =: ( x, (,y)  ) eval label_. y' each ;: 'A Ad Af As set intersect union' , dyadlist_af_ , ' ' , , reducelist_af_
-NB. (< 'appendmanaged') 4 : 0 each ;: 'matmul'
-NB.  (y,'M') =: (' u ' , (quote y) , ' locs ' , (quote x) , ' locs@) ' ) (1 : )  label_. y
-NB. )
-'adverbs are hard' NB.matmulM =: 1 : 'a=. coname '''' label_. u matmul__a (appendmanaged__a@)'
-appendmanaged =: 3 : 'y[ MANAGED =: MANAGED , , y'
+
 clearmanaged =: 3 : 'MANAGED =: y [ R"0 MANAGED'
 killmanaged =: ] [ clearmanaged @: ((i.0)"_)
 destroy =: killmanaged NB.device_gc@:killmanaged  NB. gc misdoc'd

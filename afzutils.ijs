@@ -28,4 +28,10 @@ reduce =: 1 : '<"_1@[ ([: u &.>/(>@:) ,) <@:]'
 assign_z_ =: 4 : '(x) =: y'
 dlt0 =: #~ ([: (+./\ *. +./\.) (0{a.)&~:)
 dltb0 =: dlt0@:dltb
-NoteB =: Note : (] [ Note@]) f.
+NB. NoteB =: Note : ([ [ Note@])
+NB. NoteB =: (2 : 'u' (3 : '0 : 0' ) )
+Note 'not nec'
+NoteB =: (1 : '0 [ m (0 :)'  )
+NoteB =: (4 : 'x [ y (0 :)'  )
+NoteV =: 1 : '(0 (0 :)) label_. 0 (m :)'
+)
